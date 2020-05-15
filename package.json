@@ -1,0 +1,28 @@
+{
+  "name": "homebridge-switchbot-for-mac",
+  "version": "0.0.1",
+  "description": "A Homebridge(on macOS) plugin for SwitchBot.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zizi4n5/homebridge-switchbot-for-mac.git"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "SwitchBot",
+    "macOS"
+  ],
+  "author": "zizi4n5 <zizi4n5@gmail.com> (https://github.com/zizi4n5)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zizi4n5/homebridge-switchbot-for-mac/issues"
+  },
+  "homepage": "https://github.com/zizi4n5",
+  "readmeFilename": "README.md",
+  "engines": {
+    "homebridge": ">= 0.4"
+  },
+  "dependencies": {
+    "node-switchbot": ">= 0.0.5"
+  }
+}
