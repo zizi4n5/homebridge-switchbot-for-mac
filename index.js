@@ -12,17 +12,6 @@ module.exports = (homebridge) => {
 class SwitchBotAccessory {
   constructor(log, config) {
     this.log = log;
-    const switchbot = Switchbot();
-
-    // Find a Bot (WoHand)
-    const bot_list = await switchbot.discover({ model: 'H', id: config.macAddress, quick: true });
-    if (bot_list.length === 0) {
-      throw new Error('No device was found.');
-    }
-    
-    // The `SwitchbotDeviceWoHand` object representing the found Bot.
-    this.device = bot_list[0];
-
     this.active = false;
   }
 
@@ -49,8 +38,23 @@ class SwitchBotAccessory {
     this.log(`Turning ${humanState}...`);
 
     try {
-      const action = value ? this.device.down : this.device.up;
-      await action();
+      const switchbot = new Switchbot();
+
+      // Find a Bot (WoHand)
+      const bot_list = await switchbot.discover({ duration: 10000, model: 'H', quick: true });
+      if (bot_list.length === 0) {
+        throw new Error('No device was found.');
+      }
+      // The `SwitchbotDeviceWoHand` object representing the found Bot.
+      let device = bot_list[0];
+
+      // const action = value ? device.down : device.up;
+      // await action();
+      if (value) {
+        await device.down();
+      } else {
+        await device.up();
+      }
       this.active = value;
       this.log(`Turned ${humanState}`);
       callback();
