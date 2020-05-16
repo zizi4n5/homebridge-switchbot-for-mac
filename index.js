@@ -47,14 +47,14 @@ class SwitchBotAccessory {
         const bot_list = await switchbot.discover({ duration: 5000, model: 'H' });
         for(var bot of bot_list) {
           // Execute connect method because address cannot be obtained without a history of connecting.
-          bot.connect();
+          await bot.connect();
           this.log(bot);
           if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') == this.macAddress) {
             // The `SwitchbotDeviceWoHand` object representing the found Bot.
             this.device = bot;
             break;
           }
-          bot.disconnect();
+          await bot.disconnect();
         }
 
         if (this.device == null) {
@@ -64,7 +64,7 @@ class SwitchBotAccessory {
       }
 
       value ? await this.device.down() : await this.device.up();
-      this.device.disconnect();
+      await this.device.disconnect();
       this.active = value;
       this.log(`Turned ${humanState}`);
       callback();
