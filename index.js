@@ -12,7 +12,7 @@ module.exports = (homebridge) => {
 class SwitchBotAccessory {
   constructor(log, config) {
     this.log = log;
-    this.macAddress = config.macAddress;
+    this.macAddress = config.macAddress.toLowerCase().replace(/[^a-z0-9]/g, '');
     this.device = null;
     this.active = false;
   }
@@ -47,7 +47,7 @@ class SwitchBotAccessory {
         const bot_list = await switchbot.discover({ duration: 5000, model: 'H' });
         for(var bot of bot_list) {
           this.log(bot);
-          if (bot.address == this.macAddress) {
+          if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') == this.macAddress) {
             // The `SwitchbotDeviceWoHand` object representing the found Bot.
             this.device = bot;
             break;
