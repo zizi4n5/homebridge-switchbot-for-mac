@@ -12,6 +12,7 @@ module.exports = (homebridge) => {
 class SwitchBotAccessory {
   constructor(log, config) {
     this.log = log;
+    this.macAddress = config.macAddress;
     this.device = null;
     this.active = false;
   }
@@ -43,12 +44,20 @@ class SwitchBotAccessory {
         const switchbot = new Switchbot();
 
         // Find a Bot (WoHand)
-        const bot_list = await switchbot.discover({ duration: 10000, model: 'H', quick: true });
-        if (bot_list.length === 0) {
-          throw new Error('No device was found.');
+        const bot_list = await switchbot.discover({ duration: 5000, model: 'H' });
+        for(var bot of bot_list) {
+          this.log(bot);
+          if (bot.address == this.macAddress) {
+            // The `SwitchbotDeviceWoHand` object representing the found Bot.
+            this.device = bot;
+            break;
+          }
         }
-        // The `SwitchbotDeviceWoHand` object representing the found Bot.
-        this.device = bot_list[0];
+
+        if (this.device == null) {
+          this.log('Device was not found.');
+          throw new Error('Device was not found.');
+        }
       }
 
       value ? await this.device.down() : await this.device.up();
