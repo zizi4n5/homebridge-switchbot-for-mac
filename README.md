@@ -5,6 +5,13 @@ A [Homebridge](https://github.com/nfarina/homebridge) plugin for [SwitchBot](htt
 ## Requirements
 
 * Currently only macOS is supported.
+* Install [Xcode](https://itunes.apple.com/ca/app/xcode/id497799835?mt=12)
+
+## Dependencies
+
+* Node.js 10 +
+* [@abandonware/noble](https://github.com/abandonware/noble)
+* [@futomi/node-switchbot](https://github.com/futomi/node-switchbot)
 
 ## Installation
 
