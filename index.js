@@ -63,7 +63,7 @@ class SwitchBotAccessory {
         }
       }
 
-      value ? await this.device.down() : await this.device.up();
+      value ? await this.device.turnOn() : await this.device.turnOff();
       await this.device.disconnect();
       this.active = value;
       this.log(`WoHand (${this.device.address}) was turned ${humanState}`);
