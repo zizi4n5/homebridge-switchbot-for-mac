@@ -9,21 +9,22 @@ module.exports = (homebridge) => {
   homebridge.registerAccessory('homebridge-switchbot-for-mac', 'SwitchBot-For-Mac', SwitchBotAccessory);
 }
 
+class DeviceInfo {
+  constructor(macAddress) {
+    this.macAddress = macAddress;
+    this.device = null;
+  }
+}
+
 class SwitchBotAccessory {
   constructor(log, config) {
     this.log = log;
     if (config.macAddress) {
-      this.mode = '1';
-      this.macAddress = config.macAddress;
-      this.device = null;
+      this.on = new DeviceInfo(config.macAddress);
+      this.off = this.on;
     } else {
-      this.mode = '2';
-      this.on = {};
-      this.on.macAddress = config.on.macAddress;
-      this.on.device = null;
-      this.off = {};
-      this.off.macAddress = config.off.macAddress;
-      this.off.device = null;
+      this.on = new DeviceInfo(config.on.macAddress);
+      this.off = new DeviceInfo(config.off.macAddress);
     }
     this.active = false;
   }
@@ -48,39 +49,30 @@ class SwitchBotAccessory {
 
   async setOn(value, callback) {
     const humanState = value ? 'on' : 'off';
-    let device = null;
+    let deviceInfo = null;
     this.log(`Turning ${humanState}...`);
 
-    switch (this.mode) {
-      case '1':
-        if (!this.device) this.device = await this.connectDevice(this.macAddress);
-        device = this.device;
-        break;
-      case '2':
-        if (value) {
-          if (!this.on.device) this.on.device = await this.connectDevice(this.on.macAddress);
-          device = this.on.device;
-        } else {
-          if (!this.off.device) this.off.device = await this.connectDevice(this.off.macAddress);
-          device = this.off.device;
-        }
-        break;
+    if (value) {
+      deviceInfo = this.on;
+    } else {
+      deviceInfo = this.off;
     }
 
-  try {
-      if (device == null) {
-        this.log(`WoHand (${macAddress}) was not found.`);
-        throw new Error(`WoHand (${macAddress}) was not found.`);
+    try {
+      if (deviceInfo.device == null) {
+        deviceInfo.device = await this.connectDevice(deviceInfo.macAddress);
       }
 
+      const device = deviceInfo.device;
       value ? await device.turnOn() : await device.turnOff();
       await device.disconnect();
       this.active = value;
-      this.log(`WoHand (${this.device.address}) was turned ${humanState}`);
+      this.log(`WoHand (${deviceInfo.macAddress}) was turned ${humanState}`);
       callback();
     } catch (error) {
-      this.log(`WoHand (${this.device.address}) was failed turning ${humanState}`);
-      callback(`WoHand (${this.device.address}) was failed turning ${humanState}`);
+      let message = `WoHand (${deviceInfo.macAddress}) was failed turning ${humanState}`;
+      this.log(message);
+      callback(message);
     }
   }
 
@@ -92,7 +84,6 @@ class SwitchBotAccessory {
       for(var bot of bot_list) {
         // Execute connect method because address cannot be obtained without a history of connecting.
         await bot.connect();
-        this.log(`WoHand (${bot.address ?? 'undefined'}) was found.`);
         if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') == macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
           // The `SwitchbotDeviceWoHand` object representing the found Bot.
           return bot;
@@ -100,6 +91,6 @@ class SwitchBotAccessory {
         await bot.disconnect();
       }
 
-      return null;
+      throw new Error(`WoHand (${macAddress}) was not found.`);
   }
 }
