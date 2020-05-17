@@ -1,6 +1,7 @@
 # homebridge-switchbot-for-mac
 
 A [Homebridge](https://github.com/nfarina/homebridge) plugin for [SwitchBot](https://www.switch-bot.com).
+Currently only SwitchBot woHand device is supported.
 
 ## Requirements
 
