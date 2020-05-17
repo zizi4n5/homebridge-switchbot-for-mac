@@ -59,7 +59,7 @@ class SwitchBotAccessory {
     }
 
     try {
-      if (deviceInfo.device == null) {
+      if (deviceInfo.device === null) {
         deviceInfo.device = await this.connectDevice(deviceInfo.macAddress);
       }
 
@@ -84,7 +84,7 @@ class SwitchBotAccessory {
       for(var bot of bot_list) {
         // Execute connect method because address cannot be obtained without a history of connecting.
         await bot.connect();
-        if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') == macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
+        if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') === macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
           // The `SwitchbotDeviceWoHand` object representing the found Bot.
           return bot;
         }
