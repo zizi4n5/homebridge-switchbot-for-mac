@@ -12,7 +12,7 @@ module.exports = (homebridge) => {
 class SwitchBotAccessory {
   constructor(log, config) {
     this.log = log;
-    this.macAddress = config.macAddress.toLowerCase().replace(/[^a-z0-9]/g, '');
+    this.macAddress = config.macAddress;
     this.device = null;
     this.active = false;
   }
@@ -48,8 +48,8 @@ class SwitchBotAccessory {
         for(var bot of bot_list) {
           // Execute connect method because address cannot be obtained without a history of connecting.
           await bot.connect();
-          this.log(bot);
-          if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') == this.macAddress) {
+          this.log(`WoHand (${bot.address}) was found.`);
+          if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') == this.macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
             // The `SwitchbotDeviceWoHand` object representing the found Bot.
             this.device = bot;
             break;
@@ -58,19 +58,19 @@ class SwitchBotAccessory {
         }
 
         if (this.device == null) {
-          this.log('Device was not found.');
-          throw new Error('Device was not found.');
+          this.log(`WoHand (${this.macAddress}) was not found.`);
+          throw new Error(`WoHand (${this.macAddress}) was not found.`);
         }
       }
 
       value ? await this.device.down() : await this.device.up();
       await this.device.disconnect();
       this.active = value;
-      this.log(`Turned ${humanState}`);
+      this.log(`WoHand (${this.device.address}) was turned ${humanState}`);
       callback();
     } catch (error) {
-      this.log(`Failed turning ${humanState}`);
-      callback(`Failed turning ${humanState}`);
+      this.log(`WoHand (${this.device.address}) was failed turning ${humanState}`);
+      callback(`WoHand (${this.device.address}) was failed turning ${humanState}`);
     }
   }
 }
