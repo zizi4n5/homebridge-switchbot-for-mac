@@ -83,12 +83,12 @@ class SwitchBotAccessory {
       const bot_list = await switchbot.discover({ duration: 5000, model: 'H' });
       for(var bot of bot_list) {
         // Execute connect method because address cannot be obtained without a history of connecting.
-        await bot.connect();
+        if (bot.address === '') await bot.connect();
         if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') === macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
           // The `SwitchbotDeviceWoHand` object representing the found Bot.
           return bot;
         }
-        await bot.disconnect();
+        if (bot.connectionState === 'connected') await bot.disconnect();
       }
 
       throw new Error(`WoHand (${macAddress}) was not found.`);
