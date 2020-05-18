@@ -86,6 +86,7 @@ class SwitchBotAccessory {
         if (bot.address === '') await bot.connect();
         if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') === macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
           // The `SwitchbotDeviceWoHand` object representing the found Bot.
+          if (bot.connectionState !== 'connected') await bot.connect();
           return bot;
         }
         if (bot.connectionState === 'connected') await bot.disconnect();
