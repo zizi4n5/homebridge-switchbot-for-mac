@@ -9,10 +9,56 @@ module.exports = (homebridge) => {
   homebridge.registerAccessory('homebridge-switchbot-for-mac', 'SwitchBot-For-Mac', SwitchBotAccessory);
 }
 
-class DeviceInfo {
-  constructor(macAddress) {
+class WoHand {
+  constructor(log, macAddress) {
+    this.log = log;
     this.macAddress = macAddress;
+    this.discover();
+  }
+
+  async discover() {
     this.device = null;
+    this.state = 'discovering';
+
+    // Find a Bot (WoHand)
+    const switchbot = new Switchbot();
+    switchbot.ondiscover = async (bot) => {
+      // Execute connect method because address cannot be obtained without a history of connecting.
+      if (bot.address === '') await bot.connect();
+      if (bot.connectionState === 'connected') await bot.disconnect();
+      if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') === this.macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
+        // The `SwitchbotDeviceWoHand` object representing the found Bot.
+        this.device = bot;
+        this.state = 'discovered';
+        this.log(`WoHand (${this.macAddress}) was discovered`);
+      }
+    }
+
+    await switchbot.discover({ duration: 60000, model: 'H' });
+
+    if (this.state !== 'discovered') {
+      this.state = 'not found';
+      this.log(`WoHand (${this.macAddress}) was not found`);
+    }
+  }
+
+  async wait() {
+    while(true) {
+      switch (this.state) {
+        case 'discovering':
+          sleep(100);
+          break;
+        case 'discovered':
+          return;
+        case 'not found':
+          throw new Error(`WoHand (${this.macAddress}) was not found.`);
+      }
+    }
+  }
+
+  async turn(value) {
+    await this.wait();
+    value ? await this.device.turnOn() : await this.device.turnOff();
   }
 }
 
@@ -20,11 +66,11 @@ class SwitchBotAccessory {
   constructor(log, config) {
     this.log = log;
     if (config.macAddress) {
-      this.on = new DeviceInfo(config.macAddress);
+      this.on = new WoHand(log, config.macAddress);
       this.off = this.on;
     } else {
-      this.on = new DeviceInfo(config.on.macAddress);
-      this.off = new DeviceInfo(config.off.macAddress);
+      this.on = new WoHand(log, config.on.macAddress);
+      this.off = new WoHand(log, config.off.macAddress);
     }
     this.active = false;
   }
@@ -49,49 +95,24 @@ class SwitchBotAccessory {
 
   async setOn(value, callback) {
     const humanState = value ? 'on' : 'off';
-    let deviceInfo = null;
+    let device = null;
     this.log(`Turning ${humanState}...`);
 
     if (value) {
-      deviceInfo = this.on;
+      device = this.on;
     } else {
-      deviceInfo = this.off;
+      device = this.off;
     }
 
     try {
-      if (deviceInfo.device === null) {
-        deviceInfo.device = await this.connectDevice(deviceInfo.macAddress);
-      }
-
-      const device = deviceInfo.device;
-      value ? await device.turnOn() : await device.turnOff();
-      await device.disconnect();
+      await device.turn(value);
       this.active = value;
-      this.log(`WoHand (${deviceInfo.macAddress}) was turned ${humanState}`);
+      this.log(`WoHand (${device.macAddress}) was turned ${humanState}`);
       callback();
     } catch (error) {
-      let message = `WoHand (${deviceInfo.macAddress}) was failed turning ${humanState}`;
+      let message = `WoHand (${device.macAddress}) was failed turning ${humanState}`;
       this.log(message);
       callback(message);
     }
-  }
-
-  async connectDevice(macAddress) {
-      const switchbot = new Switchbot();
-
-      // Find a Bot (WoHand)
-      const bot_list = await switchbot.discover({ duration: 5000, model: 'H' });
-      for(var bot of bot_list) {
-        // Execute connect method because address cannot be obtained without a history of connecting.
-        if (bot.address === '') await bot.connect();
-        if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') === macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
-          // The `SwitchbotDeviceWoHand` object representing the found Bot.
-          if (bot.connectionState !== 'connected') await bot.connect();
-          return bot;
-        }
-        if (bot.connectionState === 'connected') await bot.disconnect();
-      }
-
-      throw new Error(`WoHand (${macAddress}) was not found.`);
   }
 }
