@@ -10,15 +10,28 @@ module.exports = (homebridge) => {
 }
 
 class WoHand {
-  constructor(log, macAddress) {
+
+  on = {};
+  off = {};
+  device = {};
+  discoverState = {};
+
+  constructor(log, config) {
     this.log = log;
-    this.macAddress = macAddress;
-    this.discover();
+    if (config.macAddress) {
+      this.on.macAddress = config.macAddress;
+      this.off.macAddress = config.macAddress;
+    } else {
+      this.on.macAddress = config.on.macAddress;
+      this.off.macAddress = config.off.macAddress;
+    }
+    this.discover(this.on.macAddress);
+    this.discover(this.off.macAddress);
   }
 
-  async discover() {
-    this.device = null;
-    this.state = 'discovering';
+  async discover(macAddress) {
+    if (this.discoverState[macAddress] === 'discovering' || this.discoverState[macAddress] === 'discovered') return;
+    this.discoverState[macAddress] = 'discovering';
 
     // Find a Bot (WoHand)
     const switchbot = new Switchbot();
@@ -26,52 +39,53 @@ class WoHand {
       // Execute connect method because address cannot be obtained without a history of connecting.
       if (bot.address === '') await bot.connect();
       if (bot.connectionState === 'connected') await bot.disconnect();
-      if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') === this.macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
+      if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') === macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
         // The `SwitchbotDeviceWoHand` object representing the found Bot.
-        this.device = bot;
-        this.state = 'discovered';
-        this.log(`WoHand (${this.macAddress}) was discovered`);
+        this.device[macAddress] = bot;
+        this.discoverState[macAddress] = 'discovered';
+        this.log(`WoHand (${macAddress}) was discovered`);
       }
     }
 
     await switchbot.discover({ duration: 60000, model: 'H' });
 
-    if (this.state !== 'discovered') {
-      this.state = 'not found';
-      this.log(`WoHand (${this.macAddress}) was not found`);
+    if (this.discoverState[macAddress] !== 'discovered') {
+      this.discoverState[macAddress] = 'not found';
+      this.log(`WoHand (${macAddress}) was not found`);
     }
   }
 
-  async wait() {
+  async wait(macAddress) {
     while(true) {
-      switch (this.state) {
+      switch (this.discoverState[macAddress]) {
         case 'discovering':
           sleep(100);
           break;
         case 'discovered':
           return;
         case 'not found':
-          throw new Error(`WoHand (${this.macAddress}) was not found.`);
+          throw new Error(`WoHand (${macAddress}) was not found.`);
       }
     }
   }
 
   async turn(value) {
-    await this.wait();
-    value ? await this.device.turnOn() : await this.device.turnOff();
+    if (value) {
+      const macAddress = this.on.macAddress;
+      await this.wait(macAddress);
+      await this.device[macAddress].turnOn();
+    } else {
+      const macAddress = this.off.macAddress;
+      await this.wait(macAddress);
+      await this.device[macAddress].turnOff();
+    }
   }
 }
 
 class SwitchBotAccessory {
   constructor(log, config) {
     this.log = log;
-    if (config.macAddress) {
-      this.on = new WoHand(log, config.macAddress);
-      this.off = this.on;
-    } else {
-      this.on = new WoHand(log, config.on.macAddress);
-      this.off = new WoHand(log, config.off.macAddress);
-    }
+    this.device = new WoHand(log, config);
     this.active = false;
   }
 
@@ -95,22 +109,15 @@ class SwitchBotAccessory {
 
   async setOn(value, callback) {
     const humanState = value ? 'on' : 'off';
-    let device = null;
     this.log(`Turning ${humanState}...`);
 
-    if (value) {
-      device = this.on;
-    } else {
-      device = this.off;
-    }
-
     try {
-      await device.turn(value);
+      await this.device.turn(value);
       this.active = value;
-      this.log(`WoHand (${device.macAddress}) was turned ${humanState}`);
+      this.log(`WoHand (${this.device.macAddress}) was turned ${humanState}`);
       callback();
     } catch (error) {
-      let message = `WoHand (${device.macAddress}) was failed turning ${humanState}`;
+      let message = `WoHand (${this.device.macAddress}) was failed turning ${humanState}`;
       this.log(message);
       callback(message);
     }
