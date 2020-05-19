@@ -114,10 +114,10 @@ class SwitchBotAccessory {
     try {
       await this.device.turn(value);
       this.active = value;
-      this.log(`WoHand (${this.device.macAddress}) was turned ${humanState}`);
+      this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
       callback();
     } catch (error) {
-      let message = `WoHand (${this.device.macAddress}) was failed turning ${humanState}`;
+      let message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
       this.log(message);
       callback(message);
     }
