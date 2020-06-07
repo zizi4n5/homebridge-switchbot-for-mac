@@ -1,3 +1,4 @@
+const ping = require('./helpers/ping');
 const Switchbot = require('node-switchbot');
 
 let Service;
@@ -69,8 +70,8 @@ class WoHand {
     }
   }
 
-  async turn(value) {
-    if (value) {
+  async turn(newState) {
+    if (newState) {
       const macAddress = this.on.macAddress;
       await this.wait(macAddress);
       await this.device[macAddress].turnOn();
@@ -84,9 +85,16 @@ class WoHand {
 
 class SwitchBotAccessory {
   constructor(log, config) {
+    this.serviceManager = null;
+    this.debug = config.debug;
     this.log = log;
     this.device = new WoHand(log, config);
     this.active = false;
+    this.pingIPAddress = config.pingIPAddress;
+    this.pingFrequency = Math.max(config.pingFrequency || 2, 2);
+    if (this.pingIPAddress) {
+      ping(this.pingIPAddress, this.pingFrequency, this.updateState.bind(this));
+    }
   }
 
   getServices() {
@@ -100,20 +108,37 @@ class SwitchBotAccessory {
         .on('get', this.getOn.bind(this))
         .on('set', this.setOn.bind(this));
 
+    this.serviceManager = switchService;
     return [accessoryInformationService, switchService];
+  }
+
+  updateState(newState) {
+    if (!this.serviceManager) return;
+
+    const humanState = newState ? 'on' : 'off';
+    const previousState = this.active;
+    const hasStateChanged = (previousState !== newState);
+
+    if (hasStateChanged) {
+      if (this.debug) this.log(`updateState: ${this.pingIPAddress} state changed, update UI (device ${humanState})`);
+      this.active = newState;
+      this.serviceManager.getCharacteristic(Characteristic.On);
+    } else {
+      if (this.debug) this.log(`updateState: ${this.pingIPAddress} state not changed, ignoring (device ${humanState})`);
+    }
   }
 
   getOn(callback) {
     callback(null, this.active);
   }
 
-  async setOn(value, callback) {
-    const humanState = value ? 'on' : 'off';
+  async setOn(newState, callback) {
+    const humanState = newState ? 'on' : 'off';
     this.log(`Turning ${humanState}...`);
 
     try {
-      await this.device.turn(value);
-      this.active = value;
+      await this.device.turn(newState);
+      this.active = newState;
       this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
       callback();
     } catch (error) {

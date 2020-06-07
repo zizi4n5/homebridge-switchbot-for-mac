@@ -23,6 +23,7 @@
     "homebridge": ">= 0.4"
   },
   "dependencies": {
+    "net-ping": "^1.2.3",
     "node-switchbot": ">= 0.0.5"
   }
 }
