@@ -2,7 +2,7 @@ on: push
 name: Licensed CI
 jobs:
   updateLicense:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@master
     - uses: jonabc/setup-licensed@v1
