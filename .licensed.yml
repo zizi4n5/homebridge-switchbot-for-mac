@@ -1,3 +1,28 @@
 allowed:
   - mit
   - apache-2.0
+  - bsd-2-clause
+  - bsd-3-clause
+  - cc0-1.0
+  - isc
+
+ignored:
+  npm:
+    - '@abandonware/bluetooth-hci-socket'
+
+reviewed:
+  npm:
+    - '@abandonware/noble' # mit
+    - abbrev # isc
+    - bl # mit
+    - fs.realpath # isc
+    - glob # isc
+    - ieee754 # bsd-3-clause
+    - minizlib # mit
+    - nan # mit
+    - npm.node-addon-api # mit
+    - rc # apache-2.0
+    - readable-stream # mit
+    - sax # isc
+    - string_decoder # mit
+    - node-addon-api # mit
