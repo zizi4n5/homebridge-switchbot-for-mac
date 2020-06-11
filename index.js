@@ -12,6 +12,7 @@ module.exports = (homebridge) => {
 
 class WoHand {
 
+  delay = 0;
   on = {};
   off = {};
   device = {};
@@ -19,7 +20,9 @@ class WoHand {
 
   constructor(log, config) {
     this.log = log;
-    this.delay = (config.delay || 0) * 1000;
+    if (config.delay) {
+      this.delay = config.delay * 1000;
+    }
     if (config.macAddress) {
       this.on.macAddress = config.macAddress;
       this.off.macAddress = config.macAddress;
