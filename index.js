@@ -21,7 +21,7 @@ class WoHand {
   constructor(log, config) {
     this.log = log;
     if (config.delay) {
-      this.delay = config.delay * 1000;
+      this.delay = config.delay;
     }
     if (config.macAddress) {
       this.on.macAddress = config.macAddress;
