@@ -5,15 +5,14 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@master
-    - uses: jonabc/setup-licensed@v1
+    - uses: actions/setup-ruby@v1
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        version: 2.x
-    - run: npm install # install your projects dependencies in local environment
-    - id: licensed
-      uses: jonabc/licensed-ci@v1.5.0
+        ruby-version: 2.6.x
+    - run: bundle install
+    - uses: jonabc/licensed-ci@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        command: 'bundle exec licensed' # or bin/licensed when using binstubs
     - uses: actions/github-script@0.2.0
       if: always() && steps.licensed.outputs.pr_number
       with:
