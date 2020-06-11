@@ -1,5 +1,6 @@
 const ping = require('./helpers/ping');
 const Switchbot = require('node-switchbot');
+const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 
 let Service;
 let Characteristic;
@@ -12,6 +13,7 @@ module.exports = (homebridge) => {
 
 class WoHand {
 
+  delay = 0;
   on = {};
   off = {};
   device = {};
@@ -19,6 +21,9 @@ class WoHand {
 
   constructor(log, config) {
     this.log = log;
+    if (config.delay) {
+      this.delay = config.delay;
+    }
     if (config.macAddress) {
       this.on.macAddress = config.macAddress;
       this.off.macAddress = config.macAddress;
@@ -48,6 +53,7 @@ class WoHand {
       }
     }
 
+    await switchbot.wait(this.delay);
     await switchbot.discover({ duration: 60000, model: 'H' });
 
     if (this.discoverState[macAddress] !== 'discovered') {
