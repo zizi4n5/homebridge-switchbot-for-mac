@@ -88,7 +88,7 @@ class WoHand {
 class SwitchBotAccessory {
   constructor(log, config) {
     this.serviceManager = null;
-    this.debug = config.debug;
+    this.debug = config.debug || false;
     this.log = log;
     this.device = new WoHand(log, config);
     this.active = null;
