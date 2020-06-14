@@ -142,6 +142,12 @@ class SwitchBotAccessory {
     const humanState = newState ? 'on' : 'off';
     this.log(`Turning ${humanState}...`);
 
+    if (newState === this.active) {
+      this.log(`WoHand (${this.device[humanState].macAddress}) was already ${humanState}`);
+      callback();
+      return;
+    }
+
     try {
       await this.device.turn(newState);
       this.active = newState;
