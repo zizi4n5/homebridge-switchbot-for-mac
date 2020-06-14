@@ -96,10 +96,10 @@ class SwitchBotAccessory {
     this.log = log;
     this.device = new WoHand(log, config);
     this.active = false;
-    this.pingIPAddress = config.pingIPAddress;
-    this.pingFrequency = Math.max(config.pingFrequency || 2, 2);
-    if (this.pingIPAddress) {
-      ping(this.pingIPAddress, this.pingFrequency, this.updateState.bind(this));
+    if (config.ping) {
+      const ipAddress = config.ping.ipAddress;
+      const interval = Math.max(config.ping.interval || 2000, 2000);
+      ping(ipAddress, interval, this.updateState.bind(this));
     }
   }
 
