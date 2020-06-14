@@ -95,7 +95,7 @@ class SwitchBotAccessory {
     this.debug = config.debug;
     this.log = log;
     this.device = new WoHand(log, config);
-    this.active = false;
+    this.active = null;
     if (config.ping) {
       const ipAddress = config.ping.ipAddress;
       const interval = Math.max(config.ping.interval || 2000, 2000);
@@ -135,7 +135,7 @@ class SwitchBotAccessory {
   }
 
   getOn(callback) {
-    callback(null, this.active);
+    callback(null, this.active || false);
   }
 
   async setOn(newState, callback) {
