@@ -115,17 +115,23 @@ class SwitchBotAccessory {
 
   async setOn(value, callback) {
     const humanState = value ? 'on' : 'off';
-    this.log(`Turning ${humanState}...`);
 
-    try {
-      await this.device.turn(value);
-      this.active = value;
-      this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
+    if (value === this.active) {
+      this.log(`WoHand (${this.device[humanState].macAddress}) was already ${humanState}`);
       callback();
-    } catch (error) {
-      let message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
-      this.log(message);
-      callback(message);
+    } else {
+      this.log(`Turning ${humanState}...`);
+
+      try {
+        await this.device.turn(value);
+        this.active = value;
+        this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
+        callback();
+      } catch (error) {
+        let message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
+        this.log(message);
+        callback(message);
+      }
     }
   }
 }
