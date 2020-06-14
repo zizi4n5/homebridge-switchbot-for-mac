@@ -1,4 +1,3 @@
-const ping = require('./helpers/ping');
 const Switchbot = require('node-switchbot');
 const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 
@@ -99,7 +98,12 @@ class SwitchBotAccessory {
     if (config.ping) {
       const ipAddress = config.ping.ipAddress;
       const interval = Math.max(config.ping.interval || 2000, 2000);
-      ping(ipAddress, interval, this.updateState.bind(this));
+      setInterval(() => {
+        const ping = require('net-ping').createSession({ retries: 1, timeout: 1000 });
+        ping.pingHost(ipAddress, (error) => {
+          this.updateState(!error);
+        })
+      }, interval);
     }
   }
 
