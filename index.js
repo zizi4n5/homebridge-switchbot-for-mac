@@ -126,11 +126,11 @@ class SwitchBotAccessory {
     const hasStateChanged = (previousState !== newState);
 
     if (hasStateChanged) {
-      if (this.debug) this.log(`updateState: ${this.pingIPAddress} state changed, update UI (device ${humanState})`);
+      if (this.debug) this.log(`updateState: state changed, update UI (device ${humanState})`);
       this.active = newState;
       this.serviceManager.getCharacteristic(Characteristic.On);
     } else {
-      if (this.debug) this.log(`updateState: ${this.pingIPAddress} state not changed, ignoring (device ${humanState})`);
+      if (this.debug) this.log(`updateState: state not changed, ignoring (device ${humanState})`);
     }
   }
 
