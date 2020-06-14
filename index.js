@@ -12,7 +12,6 @@ module.exports = (homebridge) => {
 
 class WoHand {
 
-  delay = 0;
   on = {};
   off = {};
   device = {};
@@ -20,9 +19,7 @@ class WoHand {
 
   constructor(log, config) {
     this.log = log;
-    if (config.delay) {
-      this.delay = config.delay;
-    }
+    this.delay = config.delay || 0;
     if (config.macAddress) {
       this.on.macAddress = config.macAddress;
       this.off.macAddress = config.macAddress;
@@ -75,8 +72,8 @@ class WoHand {
     }
   }
 
-  async turn(value) {
-    if (value) {
+  async turn(newState) {
+    if (newState) {
       const macAddress = this.on.macAddress;
       await this.wait(macAddress);
       await this.device[macAddress].turnOn();
@@ -90,9 +87,21 @@ class WoHand {
 
 class SwitchBotAccessory {
   constructor(log, config) {
+    this.serviceManager = null;
+    this.debug = config.debug || false;
     this.log = log;
     this.device = new WoHand(log, config);
-    this.active = false;
+    this.active = null;
+    if (config.ping) {
+      const ipAddress = config.ping.ipAddress;
+      const interval = Math.max(config.ping.interval || 2000, 2000);
+      setInterval(() => {
+        const ping = require('net-ping').createSession({ retries: 1, timeout: 1000 });
+        ping.pingHost(ipAddress, (error) => {
+          this.updateState(!error);
+        })
+      }, interval);
+    }
   }
 
   getServices() {
@@ -106,32 +115,49 @@ class SwitchBotAccessory {
         .on('get', this.getOn.bind(this))
         .on('set', this.setOn.bind(this));
 
+    this.serviceManager = switchService;
     return [accessoryInformationService, switchService];
   }
 
-  getOn(callback) {
-    callback(null, this.active);
+  updateState(newState) {
+    if (!this.serviceManager) return;
+
+    const humanState = newState ? 'on' : 'off';
+    const previousState = this.active;
+    const hasStateChanged = (previousState !== newState);
+
+    if (hasStateChanged) {
+      if (this.debug) this.log(`updateState: state changed, update UI (device ${humanState})`);
+      this.active = newState;
+      this.serviceManager.getCharacteristic(Characteristic.On);
+    } else {
+      if (this.debug) this.log(`updateState: state not changed, ignoring (device ${humanState})`);
+    }
   }
 
-  async setOn(value, callback) {
-    const humanState = value ? 'on' : 'off';
+  getOn(callback) {
+    callback(null, this.active || false);
+  }
 
-    if (value === this.active) {
+  async setOn(newState, callback) {
+    const humanState = newState ? 'on' : 'off';
+    this.log(`Turning ${humanState}...`);
+
+    if (newState === this.active) {
       this.log(`WoHand (${this.device[humanState].macAddress}) was already ${humanState}`);
       callback();
-    } else {
-      this.log(`Turning ${humanState}...`);
+      return;
+    }
 
-      try {
-        await this.device.turn(value);
-        this.active = value;
-        this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
-        callback();
-      } catch (error) {
-        let message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
-        this.log(message);
-        callback(message);
-      }
+    try {
+      await this.device.turn(newState);
+      this.active = newState;
+      this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
+      callback();
+    } catch (error) {
+      let message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
+      this.log(message);
+      callback(message);
     }
   }
 }
