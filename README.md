@@ -91,4 +91,4 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
 |Property|Type|Required|Default Value|Description|
 |:-|:-:|:-:|:-:|:-|
 |ipAddress|String|Required|-|Set the IP address of the target device.|
-|interval|String|Optional|2000|Set the ping interval to more than 2000 milliseconds.|
+|interval|Integer|Optional|2000|Set the ping interval to more than 2000 milliseconds.|
