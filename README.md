@@ -39,7 +39,9 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
             "macAddress": "01:23:45:67:89:AB",
             "ping": {
                 "ipAddress": "127.0.0.1",
-                "interval": 2000
+                "interval": 2000,
+                "retries": 1,
+                "timeout": 1000
             }
         }
     ]
@@ -63,7 +65,9 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
             },
             "ping": {
                 "ipAddress": "127.0.0.1",
-                "interval": 2000
+                "interval": 2000,
+                "retries": 1,
+                "timeout": 1000
             }
         }
     ]
@@ -91,4 +95,6 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
 |Property|Type|Required|Default Value|Description|
 |:-|:-:|:-:|:-:|:-|
 |ipAddress|String|Required|-|Set the IP address of the target device.|
-|interval|String|Optional|2000|Set the ping interval to more than 2000 milliseconds.|
+|interval|Integer|Optional|2000|Set the ping interval to more than 2000 milliseconds.|
+|retries|Integer|Optional|1|Set the ping retry times to more than 0 times.|
+|timeout|Integer|Optional|1000|Set the ping timeout to less than `interval / (retries + 1)` milliseconds.|

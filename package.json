@@ -1,6 +1,6 @@
 {
   "name": "homebridge-switchbot-for-mac",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "A Homebridge(on macOS) plugin for SwitchBot.",
   "main": "index.js",
   "repository": {
