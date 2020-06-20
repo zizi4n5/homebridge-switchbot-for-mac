@@ -97,6 +97,10 @@ class SwitchBotAccessory {
       const ipAddress = config.ping.ipAddress;
       const interval = Math.max(config.ping.interval || 2000, 2000);
       const session = ping.createSession({ retries: 1, timeout: 1000 });
+      const retries = Math.max(config.ping.retries || 1, 1);
+      const timeout = Math.min(config.ping.timeout || interval / (retries + 1), interval / (retries + 1));
+      const session = ping.createSession({ retries: retries, timeout: timeout });
+      this.log(`ping - ipAddress:${ipAddress} interval:${interval} retries:${retries} timeout:${timeout}`);
       setInterval(() => {
         session.pingHost(ipAddress, (error, target) => {
           if (error && !(error instanceof ping.RequestTimedOutError)) {
