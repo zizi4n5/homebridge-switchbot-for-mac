@@ -1,26 +1,40 @@
+import {
+  AccessoryConfig,
+  AccessoryPlugin,
+  API,
+  CharacteristicEventTypes,
+  CharacteristicGetCallback,
+  CharacteristicSetCallback,
+  CharacteristicValue,
+  HAP,
+  Logging,
+  Service
+} from "homebridge";
+
 import Switchbot = require('node-switchbot');
 import ping = require('net-ping');
 const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
 
-let Service: any;
-let Characteristic: any;
+let hap: HAP;
 
-module.exports = function (homebridge: any) {
-  Service = homebridge.hap.Service;
-  Characteristic = homebridge.hap.Characteristic;
-  homebridge.registerAccessory('homebridge-switchbot-for-mac', 'SwitchBot-For-Mac', SwitchBotAccessory);
-}
+/*
+ * Initializer function called when the plugin is loaded.
+ */
+export = (api: API) => {
+  hap = api.hap;
+  api.registerAccessory('SwitchBot-For-Mac', SwitchBotAccessory);
+};
 
 class WoHand {
 
-  private readonly log: (msg: string) => void;
+  private readonly log: Logging;
   private readonly delay: number;
   private readonly on: { macAddress: string };
   private readonly off: { macAddress: string };
   private device: { [key: string]: any } = {};
   private discoverState: { [key: string]: string } = {};
 
-  constructor(log: (msg: string) => void, config: Config) {
+  constructor(log: Logging, config: Config) {
     this.log = log;
     this.delay = config.delay || 0;
     if (config.macAddress) {
@@ -88,19 +102,31 @@ class WoHand {
   }
 }
 
-class SwitchBotAccessory {
+class SwitchBotAccessory implements AccessoryPlugin {
 
+  private readonly log: Logging;
+  private readonly name: string;
   private readonly debug: boolean;
-  private readonly log: (msg: string) => void;
   private readonly device: any;
 
-  private serviceManager: any = null;
-  private active: boolean = null;
+  private readonly switchService: Service;
+  private readonly informationService: Service;
+  private active? :boolean;
 
-  constructor(log, config: Config) {
-    this.debug = config.debug || false;
+  constructor(log: Logging, config: AccessoryConfig, api: API) {
     this.log = log;
-    this.device = new WoHand(log, config);
+    this.name = config.name;
+    this.debug = config.debug || false;
+    this.device = new WoHand(log, config as Config);
+
+    this.switchService = new hap.Service.Switch(this.name);
+    this.switchService.getCharacteristic(hap.Characteristic.On)
+      .on(CharacteristicEventTypes.GET, this.getOn.bind(this))
+      .on(CharacteristicEventTypes.SET, this.setOn.bind(this));
+
+    this.informationService = new hap.Service.AccessoryInformation()
+      .setCharacteristic(hap.Characteristic.Manufacturer, 'zizi4n5');
+
     if (config.ping) {
       const ipAddress = config.ping.ipAddress;
       const interval = Math.max(config.ping.interval || 2000, 2000);
@@ -119,24 +145,18 @@ class SwitchBotAccessory {
     }
   }
 
-  getServices() {
-    const accessoryInformationService = new Service.AccessoryInformation();
-    accessoryInformationService
-      .setCharacteristic(Characteristic.Manufacturer, 'zizi4n5')
-
-    const switchService = new Service.Switch();
-    switchService
-      .getCharacteristic(Characteristic.On)
-        .on('get', this.getOn.bind(this))
-        .on('set', this.setOn.bind(this));
-
-    this.serviceManager = switchService;
-    return [accessoryInformationService, switchService];
+  /*
+   * This method is called directly after creation of this instance.
+   * It should return all services which should be added to the accessory.
+   */
+  getServices(): Service[] {
+    return [
+      this.informationService,
+      this.switchService,
+    ];
   }
 
   updateState(newState: boolean) {
-    if (!this.serviceManager) return;
-
     const humanState = newState ? 'on' : 'off';
     const previousState = this.active;
     const hasStateChanged = (previousState !== newState);
@@ -144,23 +164,32 @@ class SwitchBotAccessory {
     if (hasStateChanged) {
       if (this.debug) this.log(`updateState: state changed, update UI (device ${humanState})`);
       this.active = newState;
-      this.serviceManager.getCharacteristic(Characteristic.On);
+      this.switchService.updateCharacteristic(hap.Characteristic.On, newState);
     } else {
       if (this.debug) this.log(`updateState: state not changed, ignoring (device ${humanState})`);
     }
   }
 
-  getOn(callback: (err: any, newValue: boolean) => void) {
+  /**
+   * Handle the "GET" requests from HomeKit
+   * These are sent when HomeKit wants to know the current state of the accessory.
+   */
+  getOn(callback: CharacteristicGetCallback) {
     callback(null, this.active || false);
   }
-
-  async setOn(newState: boolean, callback: (err: any) => void) {
+   
+  /**
+   * Handle "SET" requests from HomeKit
+   * These are sent when the user changes the state of an accessory.
+   */
+  async setOn(value: CharacteristicValue, callback: CharacteristicSetCallback) {
+    let newState = value as boolean;
     const humanState = newState ? 'on' : 'off';
     this.log(`Turning ${humanState}...`);
 
     if (newState === this.active) {
       this.log(`WoHand (${this.device[humanState].macAddress}) was already ${humanState}`);
-      callback(null);
+      callback();
       return;
     }
 
@@ -168,17 +197,16 @@ class SwitchBotAccessory {
       await this.device.turn(newState);
       this.active = newState;
       this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
-      callback(null);
+      callback();
     } catch (error) {
       let message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
       this.log(message);
-      callback(message);
+      callback(Error(message));
     }
   }
 }
 
-interface Config {
-  name: string,
+interface Config extends AccessoryConfig {
   delay: number,
   macAddress: string,
   on: {

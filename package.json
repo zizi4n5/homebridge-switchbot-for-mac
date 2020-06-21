@@ -1,5 +1,4 @@
 {
-  "private": true,
   "displayName": "Homebridge plugin for SwitchBot",
   "name": "homebridge-switchbot-for-mac",
   "version": "0.1.2",
