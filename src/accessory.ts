@@ -11,8 +11,6 @@ import {
   Service
 } from "homebridge";
 
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-
 import Switchbot = require('node-switchbot');
 import ping = require('net-ping');
 const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
@@ -22,6 +20,7 @@ class WoHand {
   private readonly delay: number;
   private readonly on: { macAddress: string };
   private readonly off: { macAddress: string };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private device: { [key: string]: any } = {};
   private discoverState: { [key: string]: string } = {};
 
@@ -66,6 +65,7 @@ class WoHand {
   }
 
   async wait(macAddress: string) {
+    // eslint-disable-next-line no-constant-condition
     while(true) {
       switch (this.discoverState[macAddress]) {
         case 'discovering':
@@ -98,7 +98,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
 
   private readonly name: string;
   private readonly debug: boolean;
-  private readonly device: any;
+  private readonly device: WoHand;
 
   private readonly switchService: Service;
   private readonly informationService: Service;
@@ -146,7 +146,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
     ];
   }
 
-  updateState(newState: boolean) {
+  private updateState(newState: boolean) {
     const humanState = newState ? 'on' : 'off';
     const previousState = this.active;
     const hasStateChanged = (previousState !== newState);
@@ -164,7 +164,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
    * Handle the "GET" requests from HomeKit
    * These are sent when HomeKit wants to know the current state of the accessory.
    */
-  getOn(callback: CharacteristicGetCallback) {
+  private getOn(callback: CharacteristicGetCallback) {
     callback(null, this.active || false);
   }
    
@@ -172,8 +172,8 @@ export class SwitchBotAccessory implements AccessoryPlugin {
    * Handle "SET" requests from HomeKit
    * These are sent when the user changes the state of an accessory.
    */
-  async setOn(value: CharacteristicValue, callback: CharacteristicSetCallback) {
-    let newState = value as boolean;
+  private async setOn(value: CharacteristicValue, callback: CharacteristicSetCallback) {
+    const newState = value as boolean;
     const humanState = newState ? 'on' : 'off';
     this.log(`Turning ${humanState}...`);
 
@@ -189,7 +189,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
       this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
       callback();
     } catch (error) {
-      let message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
+      const message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
       this.log(message);
       callback(Error(message));
     }
