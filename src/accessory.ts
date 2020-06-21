@@ -128,7 +128,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
       const session = ping.createSession({ retries: retries, timeout: timeout });
       log.info(`ping - ipAddress:${ipAddress} interval:${interval} retries:${retries} timeout:${timeout}`);
       setInterval(() => {
-        session.pingHost(ipAddress, (error, target) => {
+        session.pingHost(ipAddress, (error: Error, target: string) => {
           if (error) {
             log.debug(`ping ${target} is error (${error.toString()})`);
           }
