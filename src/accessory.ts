@@ -15,6 +15,8 @@ import Switchbot = require('node-switchbot');
 import ping = require('net-ping');
 const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
 
+type Switchbot = typeof Switchbot;
+type SwitchbotDeviceWoHand = typeof Switchbot.SwitchbotDeviceWoHand;
 
 enum DiscoverState {
   Discovering,
@@ -27,7 +29,7 @@ class WoHand {
   private readonly delay: number;
   private readonly on: { macAddress: string };
   private readonly off: { macAddress: string };
-  private device: { [key: string]: Switchbot } = {};
+  private device: { [key: string]: SwitchbotDeviceWoHand } = {};
   private discoverState: { [key: string]: DiscoverState } = {};
 
   constructor(private readonly log: Logging, config: Config) {
@@ -49,7 +51,7 @@ class WoHand {
 
     // Find a Bot (WoHand)
     const switchbot = new Switchbot();
-    switchbot.ondiscover = async (bot) => {
+    switchbot.ondiscover = async (bot: SwitchbotDeviceWoHand) => {
       // Execute connect method because address cannot be obtained without a history of connecting.
       if (bot.address === '') await bot.connect();
       if (bot.connectionState === 'connected') await bot.disconnect();
