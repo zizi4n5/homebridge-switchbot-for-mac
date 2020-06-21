@@ -15,6 +15,13 @@ import Switchbot = require('node-switchbot');
 import ping = require('net-ping');
 const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
 
+
+enum DiscoverState {
+  Discovering,
+  Discovered,
+  NotFound,
+}
+
 class WoHand {
 
   private readonly delay: number;
@@ -22,7 +29,7 @@ class WoHand {
   private readonly off: { macAddress: string };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private device: { [key: string]: any } = {};
-  private discoverState: { [key: string]: string } = {};
+  private discoverState: { [key: string]: DiscoverState } = {};
 
   constructor(private readonly log: Logging, config: Config) {
     this.delay = config.delay || 0;
@@ -38,8 +45,8 @@ class WoHand {
   }
 
   async discover(macAddress: string) {
-    if (this.discoverState[macAddress] === 'discovering' || this.discoverState[macAddress] === 'discovered') return;
-    this.discoverState[macAddress] = 'discovering';
+    if (this.discoverState[macAddress] === DiscoverState.Discovering || this.discoverState[macAddress] === DiscoverState.Discovered) return;
+    this.discoverState[macAddress] = DiscoverState.Discovering;
 
     // Find a Bot (WoHand)
     const switchbot = new Switchbot();
@@ -50,7 +57,7 @@ class WoHand {
       if (bot.address.toLowerCase().replace(/[^a-z0-9]/g, '') === macAddress.toLowerCase().replace(/[^a-z0-9]/g, '')) {
         // The `SwitchbotDeviceWoHand` object representing the found Bot.
         this.device[macAddress] = bot;
-        this.discoverState[macAddress] = 'discovered';
+        this.discoverState[macAddress] = DiscoverState.Discovered;
         this.log(`WoHand (${macAddress}) was discovered`);
       }
     }
@@ -58,22 +65,19 @@ class WoHand {
     await switchbot.wait(this.delay);
     await switchbot.discover({ duration: 60000, model: 'H' });
 
-    if (this.discoverState[macAddress] !== 'discovered') {
-      this.discoverState[macAddress] = 'not found';
+    if (this.discoverState[macAddress] !== DiscoverState.Discovered) {
+      this.discoverState[macAddress] = DiscoverState.NotFound;
       this.log(`WoHand (${macAddress}) was not found`);
     }
   }
 
   async wait(macAddress: string) {
-    // eslint-disable-next-line no-constant-condition
-    while(true) {
+    while(this.discoverState[macAddress] !== DiscoverState.Discovered) {
       switch (this.discoverState[macAddress]) {
-        case 'discovering':
+        case DiscoverState.Discovering:
           sleep(100);
-          break;
-        case 'discovered':
-          return;
-        case 'not found':
+          continue;
+        case DiscoverState.NotFound:
           throw new Error(`WoHand (${macAddress}) was not found.`);
       }
     }
