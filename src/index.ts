@@ -6,7 +6,6 @@ import { SwitchBotAccessory } from './accessory';
 /*
  * This method registers the accessory with Homebridge
  */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export = (api: API) => {
+export default function (api: API): void {
   api.registerAccessory(PLATFORM_NAME, SwitchBotAccessory);
-};
+}

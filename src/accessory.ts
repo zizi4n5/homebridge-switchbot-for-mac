@@ -27,8 +27,7 @@ class WoHand {
   private readonly delay: number;
   private readonly on: { macAddress: string };
   private readonly off: { macAddress: string };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private device: { [key: string]: any } = {};
+  private device: { [key: string]: Switchbot } = {};
   private discoverState: { [key: string]: DiscoverState } = {};
 
   constructor(private readonly log: Logging, config: Config) {
