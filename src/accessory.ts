@@ -108,7 +108,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
   private readonly informationService: Service;
   private active? :boolean;
 
-  constructor(public readonly log: Logging, config: AccessoryConfig, public readonly api: API) {
+  constructor(private readonly log: Logging, config: AccessoryConfig, private readonly api: API) {
     this.name = config.name;
     this.device = new WoHand(log, config as Config);
 
