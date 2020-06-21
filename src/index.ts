@@ -1,11 +1,11 @@
-const Switchbot = require('node-switchbot');
-const ping = require('net-ping');
-const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+import Switchbot = require('node-switchbot');
+import ping = require('net-ping');
+const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
 
-let Service;
-let Characteristic;
+let Service: any;
+let Characteristic: any;
 
-module.exports = (homebridge) => {
+module.exports = function (homebridge: any) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   homebridge.registerAccessory('homebridge-switchbot-for-mac', 'SwitchBot-For-Mac', SwitchBotAccessory);
@@ -13,26 +13,28 @@ module.exports = (homebridge) => {
 
 class WoHand {
 
-  on = {};
-  off = {};
-  device = {};
-  discoverState = {};
+  private readonly log: (msg: string) => void;
+  private readonly delay: number;
+  private readonly on: { macAddress: string };
+  private readonly off: { macAddress: string };
+  private device: { [key: string]: any } = {};
+  private discoverState: { [key: string]: string } = {};
 
-  constructor(log, config) {
+  constructor(log: (msg: string) => void, config: Config) {
     this.log = log;
     this.delay = config.delay || 0;
     if (config.macAddress) {
-      this.on.macAddress = config.macAddress;
-      this.off.macAddress = config.macAddress;
+      this.on = { macAddress: config.macAddress };
+      this.off = { macAddress: config.macAddress };
     } else {
-      this.on.macAddress = config.on.macAddress;
-      this.off.macAddress = config.off.macAddress;
+      this.on = { macAddress: config.on.macAddress };
+      this.off = { macAddress: config.off.macAddress };
     }
     this.discover(this.on.macAddress);
     this.discover(this.off.macAddress);
   }
 
-  async discover(macAddress) {
+  async discover(macAddress: string) {
     if (this.discoverState[macAddress] === 'discovering' || this.discoverState[macAddress] === 'discovered') return;
     this.discoverState[macAddress] = 'discovering';
 
@@ -59,7 +61,7 @@ class WoHand {
     }
   }
 
-  async wait(macAddress) {
+  async wait(macAddress: string) {
     while(true) {
       switch (this.discoverState[macAddress]) {
         case 'discovering':
@@ -73,7 +75,7 @@ class WoHand {
     }
   }
 
-  async turn(newState) {
+  async turn(newState: boolean) {
     if (newState) {
       const macAddress = this.on.macAddress;
       await this.wait(macAddress);
@@ -87,12 +89,18 @@ class WoHand {
 }
 
 class SwitchBotAccessory {
-  constructor(log, config) {
-    this.serviceManager = null;
+
+  private readonly debug: boolean;
+  private readonly log: (msg: string) => void;
+  private readonly device: any;
+
+  private serviceManager: any = null;
+  private active: boolean = null;
+
+  constructor(log, config: Config) {
     this.debug = config.debug || false;
     this.log = log;
     this.device = new WoHand(log, config);
-    this.active = null;
     if (config.ping) {
       const ipAddress = config.ping.ipAddress;
       const interval = Math.max(config.ping.interval || 2000, 2000);
@@ -126,7 +134,7 @@ class SwitchBotAccessory {
     return [accessoryInformationService, switchService];
   }
 
-  updateState(newState) {
+  updateState(newState: boolean) {
     if (!this.serviceManager) return;
 
     const humanState = newState ? 'on' : 'off';
@@ -142,17 +150,17 @@ class SwitchBotAccessory {
     }
   }
 
-  getOn(callback) {
+  getOn(callback: (err: any, newValue: boolean) => void) {
     callback(null, this.active || false);
   }
 
-  async setOn(newState, callback) {
+  async setOn(newState: boolean, callback: (err: any) => void) {
     const humanState = newState ? 'on' : 'off';
     this.log(`Turning ${humanState}...`);
 
     if (newState === this.active) {
       this.log(`WoHand (${this.device[humanState].macAddress}) was already ${humanState}`);
-      callback();
+      callback(null);
       return;
     }
 
@@ -160,11 +168,30 @@ class SwitchBotAccessory {
       await this.device.turn(newState);
       this.active = newState;
       this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
-      callback();
+      callback(null);
     } catch (error) {
       let message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
       this.log(message);
       callback(message);
     }
   }
+}
+
+interface Config {
+  name: string,
+  delay: number,
+  macAddress: string,
+  on: {
+    macAddress: string
+  },
+  off: {
+    macAddress: string
+  },
+  ping: {
+    ipAddress: string,
+    interval: number,
+    retries: number,
+    timeout: number
+  },
+  debug: boolean
 }
