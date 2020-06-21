@@ -59,7 +59,7 @@ class WoHand {
         // The `SwitchbotDeviceWoHand` object representing the found Bot.
         this.device[macAddress] = bot;
         this.discoverState[macAddress] = DiscoverState.Discovered;
-        this.log(`WoHand (${macAddress}) was discovered`);
+        this.log.info(`WoHand (${macAddress}) was discovered`);
       }
     }
 
@@ -68,7 +68,7 @@ class WoHand {
 
     if (this.discoverState[macAddress] !== DiscoverState.Discovered) {
       this.discoverState[macAddress] = DiscoverState.NotFound;
-      this.log(`WoHand (${macAddress}) was not found`);
+      this.log.warn(`WoHand (${macAddress}) was not found`);
     }
   }
 
@@ -102,7 +102,6 @@ export class SwitchBotAccessory implements AccessoryPlugin {
   private readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
   private readonly name: string;
-  private readonly debug: boolean;
   private readonly device: WoHand;
 
   private readonly switchService: Service;
@@ -111,7 +110,6 @@ export class SwitchBotAccessory implements AccessoryPlugin {
 
   constructor(public readonly log: Logging, config: AccessoryConfig, public readonly api: API) {
     this.name = config.name;
-    this.debug = config.debug || false;
     this.device = new WoHand(log, config as Config);
 
     this.switchService = new this.Service.Switch(this.name);
@@ -128,11 +126,11 @@ export class SwitchBotAccessory implements AccessoryPlugin {
       const retries = Math.max(config.ping.retries || 1, 1);
       const timeout = Math.min(config.ping.timeout || interval / (retries + 1), interval / (retries + 1));
       const session = ping.createSession({ retries: retries, timeout: timeout });
-      this.log(`ping - ipAddress:${ipAddress} interval:${interval} retries:${retries} timeout:${timeout}`);
+      log.info(`ping - ipAddress:${ipAddress} interval:${interval} retries:${retries} timeout:${timeout}`);
       setInterval(() => {
         session.pingHost(ipAddress, (error, target) => {
-          if (error && !(error instanceof ping.RequestTimedOutError)) {
-            this.log(`ping ${target} is error (${error.toString()})`);
+          if (error) {
+            log.debug(`ping ${target} is error (${error.toString()})`);
           }
           this.updateState(!error);
         })
@@ -157,11 +155,11 @@ export class SwitchBotAccessory implements AccessoryPlugin {
     const hasStateChanged = (previousState !== newState);
 
     if (hasStateChanged) {
-      if (this.debug) this.log(`updateState: state changed, update UI (device ${humanState})`);
+      this.log.debug(`updateState: state changed, update UI (device ${humanState})`);
       this.active = newState;
       this.switchService.updateCharacteristic(this.Characteristic.On, newState);
     } else {
-      if (this.debug) this.log(`updateState: state not changed, ignoring (device ${humanState})`);
+      this.log.debug(`updateState: state not changed, ignoring (device ${humanState})`);
     }
   }
 
@@ -180,10 +178,10 @@ export class SwitchBotAccessory implements AccessoryPlugin {
   private async setOn(value: CharacteristicValue, callback: CharacteristicSetCallback) {
     const newState = value as boolean;
     const humanState = newState ? 'on' : 'off';
-    this.log(`Turning ${humanState}...`);
+    this.log.info(`Turning ${humanState}...`);
 
     if (newState === this.active) {
-      this.log(`WoHand (${this.device[humanState].macAddress}) was already ${humanState}`);
+      this.log.info(`WoHand (${this.device[humanState].macAddress}) was already ${humanState}`);
       callback();
       return;
     }
@@ -191,11 +189,11 @@ export class SwitchBotAccessory implements AccessoryPlugin {
     try {
       await this.device.turn(newState);
       this.active = newState;
-      this.log(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
+      this.log.info(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
       callback();
     } catch (error) {
       const message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
-      this.log(message);
+      this.log.error(message);
       callback(Error(message));
     }
   }
