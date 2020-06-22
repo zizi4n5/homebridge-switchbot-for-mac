@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge plugin for SwitchBot",
   "name": "homebridge-switchbot-for-mac",
-  "version": "0.1.3-beta.0",
+  "version": "0.1.3-beta.1",
   "description": "A Homebridge(on macOS) plugin for SwitchBot.",
   "author": "zizi4n5 <zizi4n5@gmail.com> (https://github.com/zizi4n5)",
   "license": "MIT",
