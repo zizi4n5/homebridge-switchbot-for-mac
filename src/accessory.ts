@@ -76,7 +76,7 @@ class WoHand {
     while(this.discoverState[macAddress] !== DiscoverState.Discovered) {
       switch (this.discoverState[macAddress]) {
         case DiscoverState.Discovering:
-          sleep(100);
+          await sleep(100);
           continue;
         case DiscoverState.NotFound:
           throw new Error(`WoHand (${macAddress}) was not found.`);
