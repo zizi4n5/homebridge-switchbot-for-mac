@@ -1,29 +1,48 @@
 {
+  "displayName": "Homebridge plugin for SwitchBot",
   "name": "homebridge-switchbot-for-mac",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A Homebridge(on macOS) plugin for SwitchBot.",
-  "main": "index.js",
+  "author": "zizi4n5 <zizi4n5@gmail.com> (https://github.com/zizi4n5)",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zizi4n5/homebridge-switchbot-for-mac.git"
   },
-  "keywords": [
-    "homebridge-plugin",
-    "SwitchBot",
-    "macOS"
-  ],
-  "author": "zizi4n5 <zizi4n5@gmail.com> (https://github.com/zizi4n5)",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/zizi4n5/homebridge-switchbot-for-mac/issues"
   },
   "homepage": "https://github.com/zizi4n5/homebridge-switchbot-for-mac",
   "readmeFilename": "README.md",
   "engines": {
-    "homebridge": ">= 0.4"
+    "node": ">=10.17.0",
+    "homebridge": ">0.4.53"
   },
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "eslint src/**.ts",
+    "watch": "npm run build && npm link && nodemon",
+    "build": "rimraf ./dist && tsc",
+    "prepublishOnly": "npm run lint && npm run build"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "SwitchBot",
+    "macOS"
+  ],
   "dependencies": {
     "net-ping": "^1.2.3",
     "node-switchbot": ">= 0.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.11",
+    "@typescript-eslint/eslint-plugin": "^3.3.0",
+    "@typescript-eslint/parser": "^3.3.0",
+    "eslint": "^7.2.0",
+    "homebridge": "^1.1.0",
+    "nodemon": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
   }
 }
