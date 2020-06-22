@@ -106,7 +106,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
 
   private readonly switchService: Service;
   private readonly informationService: Service;
-  private active? :boolean;
+  private state? :boolean;
 
   constructor(private readonly log: Logging, config: AccessoryConfig, private readonly api: API) {
     this.name = config.name;
@@ -151,12 +151,12 @@ export class SwitchBotAccessory implements AccessoryPlugin {
 
   private updateState(newState: boolean) {
     const humanState = newState ? 'on' : 'off';
-    const previousState = this.active;
+    const previousState = this.state;
     const hasStateChanged = (previousState !== newState);
 
     if (hasStateChanged) {
       this.log.debug(`updateState: state changed, update UI (device ${humanState})`);
-      this.active = newState;
+      this.state = newState;
       this.switchService.updateCharacteristic(this.Characteristic.On, newState);
     } else {
       this.log.debug(`updateState: state not changed, ignoring (device ${humanState})`);
@@ -168,7 +168,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
    * These are sent when HomeKit wants to know the current state of the accessory.
    */
   private getOn(callback: CharacteristicGetCallback) {
-    callback(null, this.active || false);
+    callback(null, this.state || false);
   }
    
   /**
@@ -180,7 +180,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
     const humanState = newState ? 'on' : 'off';
     this.log.info(`Turning ${humanState}...`);
 
-    if (newState === this.active) {
+    if (newState === this.state) {
       this.log.info(`WoHand (${this.device[humanState].macAddress}) was already ${humanState}`);
       callback();
       return;
@@ -188,7 +188,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
 
     try {
       await this.device.turn(newState);
-      this.active = newState;
+      this.state = newState;
       this.log.info(`WoHand (${this.device[humanState].macAddress}) was turned ${humanState}`);
       callback();
     } catch (error) {
