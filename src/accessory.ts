@@ -155,7 +155,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
     const hasStateChanged = (previousState !== newState);
 
     if (hasStateChanged) {
-      this.log.debug(`updateState: state changed, update UI (device ${humanState})`);
+      this.log.info(`updateState: state changed, update UI (device ${humanState})`);
       this.state = newState;
       this.switchService.updateCharacteristic(this.Characteristic.On, newState);
     } else {
