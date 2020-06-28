@@ -213,6 +213,5 @@ interface Config extends AccessoryConfig {
     interval: number,
     retries: number,
     timeout: number
-  },
-  debug: boolean
+  }
 }
