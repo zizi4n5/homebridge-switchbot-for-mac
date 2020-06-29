@@ -194,6 +194,9 @@ export class SwitchBotAccessory implements AccessoryPlugin {
     } catch (error) {
       const message = `WoHand (${this.device[humanState].macAddress}) was failed turning ${humanState}`;
       this.log.error(message);
+      if (error instanceof Error) {
+        this.log.error(`${error.stack ?? error.name + ": " + error.message}`);
+      }
       callback(Error(message));
     }
   }
