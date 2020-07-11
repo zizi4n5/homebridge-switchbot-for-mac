@@ -52,6 +52,8 @@ class WoHand {
     // Find a Bot (WoHand)
     const switchbot = new Switchbot();
     switchbot.ondiscover = async (bot: SwitchbotDeviceWoHand) => {
+      bot.onconnect = () => { this.log.debug(`${macAddress} connected.`); };
+      bot.ondisconnect = () => { this.log.debug(`${macAddress} disconnected.`); };
       // Execute connect method because address cannot be obtained without a history of connecting.
       if (bot.address === '') await bot.connect();
       if (bot.connectionState === 'connected') await bot.disconnect();
