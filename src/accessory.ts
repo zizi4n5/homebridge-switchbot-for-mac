@@ -27,6 +27,7 @@ enum DiscoverState {
 class WoHand {
 
   private readonly delay: number;
+  private readonly retries: number;
   private readonly on: { macAddress: string };
   private readonly off: { macAddress: string };
   private device: { [key: string]: SwitchbotDeviceWoHand } = {};
@@ -34,6 +35,7 @@ class WoHand {
 
   constructor(private readonly log: Logging, config: Config) {
     this.delay = config.delay || 0;
+    this.retries = config.retries || 3;
     if (config.macAddress) {
       this.on = { macAddress: config.macAddress };
       this.off = { macAddress: config.macAddress };
@@ -52,6 +54,8 @@ class WoHand {
     // Find a Bot (WoHand)
     const switchbot = new Switchbot();
     switchbot.ondiscover = async (bot: SwitchbotDeviceWoHand) => {
+      bot.onconnect = () => { this.log.debug(`${macAddress} connected.`); };
+      bot.ondisconnect = () => { this.log.debug(`${macAddress} disconnected.`); };
       // Execute connect method because address cannot be obtained without a history of connecting.
       if (bot.address === '') await bot.connect();
       if (bot.connectionState === 'connected') await bot.disconnect();
@@ -84,15 +88,26 @@ class WoHand {
     }
   }
 
-  async turn(newState: boolean) {
-    if (newState) {
-      const macAddress = this.on.macAddress;
+  async turn(newState: boolean, retries = this.retries) {
+    const humanState = newState ? 'on' : 'off';
+    const macAddress = newState ? this.on.macAddress : this.off.macAddress;
+
+    try {
       await this.wait(macAddress);
-      await this.device[macAddress].turnOn();
-    } else {
-      const macAddress = this.off.macAddress;
-      await this.wait(macAddress);
-      await this.device[macAddress].turnOff();
+      newState ? await this.device[macAddress].turnOn() : await this.device[macAddress].turnOff();
+    } catch (error) {
+      const message = `WoHand (${macAddress}) was failed turning ${humanState}`;
+      this.log.debug(message);
+      if (error instanceof Error) {
+        this.log.debug(`${error.stack ?? error.name + ": " + error.message}`);
+      }
+
+      if (0 < retries) {
+        this.log.debug(`WoHand (${macAddress}) retry turning ${humanState}: ${this.retries - (retries - 1)} times`);
+        await this.turn(newState, retries - 1)
+      } else {
+        throw error;
+      }
     }
   }
 }
