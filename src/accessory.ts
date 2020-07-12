@@ -86,15 +86,33 @@ class WoHand {
     }
   }
 
-  async turn(newState: boolean) {
-    if (newState) {
-      const macAddress = this.on.macAddress;
-      await this.wait(macAddress);
-      await this.device[macAddress].turnOn();
-    } else {
-      const macAddress = this.off.macAddress;
-      await this.wait(macAddress);
-      await this.device[macAddress].turnOff();
+  async turn(newState: boolean, retries = 3) {
+    const humanState = newState ? 'on' : 'off';
+    try {
+      if (newState) {
+        const macAddress = this.on.macAddress;
+        await this.wait(macAddress);
+        await this.device[macAddress].connect();
+        await this.device[macAddress].turnOn();
+      } else {
+        const macAddress = this.off.macAddress;
+        await this.wait(macAddress);
+        await this.device[macAddress].connect();
+        await this.device[macAddress].turnOff();
+      }
+    } catch (error) {
+      const message = `WoHand was failed turning ${humanState}`;
+      this.log.debug(message);
+      if (error instanceof Error) {
+        this.log.debug(`${error.stack ?? error.name + ": " + error.message}`);
+      }
+
+      if (0 < retries) {
+        this.log.debug(`WoHand retry turning ${humanState}`);
+        await this.turn(newState, retries - 1)
+      } else {
+        throw error;
+      }
     }
   }
 }
