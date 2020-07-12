@@ -36,6 +36,7 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
             "accessory": "SwitchBot-For-Mac",
             "name": "Switch",
             "delay": 5000,
+            "retries": 3,
             "macAddress": "01:23:45:67:89:AB",
             "ping": {
                 "ipAddress": "127.0.0.1",
@@ -57,6 +58,7 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
             "accessory": "SwitchBot-For-Mac",
             "name": "Switch",
             "delay": 5000,
+            "retries": 3,
             "on": {
                 "macAddress": "CD:E0:12:34:56:78"
             },
@@ -81,6 +83,7 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
 |accessory|String|Required|-|This value is "SwitchBot-For-Mac"|
 |name|String|Required|-|Set the name of the switch.|
 |delay|Integer|Optional|0|Set a delay between 0 and 30000 milliseconds for waiting for Bluetooth initialization.|
+|retries|Integer|Optional|3|Set the turn retry times to more than 0 times.|
 |macAddress|String|Required<br/>(one SwitchBot)|-|Set the MAC address of the switch.|
 |on|JSON|Required<br/>(two SwitchBots)|-|Set the information of the switch for on.|
 |off|JSON|Required<br/>(two SwitchBots)|-|Set the information of the switch for off.|

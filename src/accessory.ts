@@ -27,6 +27,7 @@ enum DiscoverState {
 class WoHand {
 
   private readonly delay: number;
+  private readonly retries: number;
   private readonly on: { macAddress: string };
   private readonly off: { macAddress: string };
   private device: { [key: string]: SwitchbotDeviceWoHand } = {};
@@ -34,6 +35,7 @@ class WoHand {
 
   constructor(private readonly log: Logging, config: Config) {
     this.delay = config.delay || 0;
+    this.retries = config.retries || 3;
     if (config.macAddress) {
       this.on = { macAddress: config.macAddress };
       this.off = { macAddress: config.macAddress };
@@ -86,7 +88,7 @@ class WoHand {
     }
   }
 
-  async turn(newState: boolean, retries = 3) {
+  async turn(newState: boolean, retries = this.retries) {
     const humanState = newState ? 'on' : 'off';
     try {
       if (newState) {
