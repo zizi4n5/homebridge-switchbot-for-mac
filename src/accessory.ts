@@ -92,12 +92,10 @@ class WoHand {
       if (newState) {
         const macAddress = this.on.macAddress;
         await this.wait(macAddress);
-        await this.device[macAddress].connect();
         await this.device[macAddress].turnOn();
       } else {
         const macAddress = this.off.macAddress;
         await this.wait(macAddress);
-        await this.device[macAddress].connect();
         await this.device[macAddress].turnOff();
       }
     } catch (error) {
