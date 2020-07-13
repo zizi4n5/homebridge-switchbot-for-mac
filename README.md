@@ -5,8 +5,19 @@ Currently only [SwitchBot (the Bot)](https://www.switch-bot.com/bot) is supporte
 
 ## Requirements
 
-* Currently only macOS is supported.
+### macOS
+* macOS version 10.15 or later
 * Install [Xcode](https://itunes.apple.com/ca/app/xcode/id497799835?mt=12)
+
+### Linux(Raspbian)
+* Kernel version 3.6 or later
+* libbluetooth-dev
+
+```bash
+sudo apt-get install bluetooth bluez libbluetooth-dev libudev-dev
+```
+
+If [@abandonware/noble](https://github.com/abandonware/noble) is installed properly, this module might work well on other Linux-based OSes, such as Ubuntu, Debian and so on. See the document of the [@abandonware/noble](https://github.com/abandonware/noble#linux) for details.
 
 ## Dependencies
 
