@@ -1,0 +1,151 @@
+{
+  "pluginAlias": "SwitchBot-For-Mac",
+  "pluginType": "accessory",
+  "singular": false,
+  "schema": {
+    "type": "object",
+    "required": [
+      "name"
+    ],
+    "oneOf": [
+      {"required": ["macAddress"]},
+      {"required": ["on", "off"]}
+    ],
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "placeholder": "eg. Switch",
+        "description": "Set the name of the switch."
+      },
+      "delay": {
+        "title": "Delay",
+        "type": "integer",
+        "minimum": 0,
+        "placeholder": 0,
+        "description": "Set a delay between 0 and 30000 milliseconds for waiting for Bluetooth initialization."
+      },
+      "retries": {
+        "title": "Retries",
+        "type": "integer",
+        "minimum": 0,
+        "placeholder": 3,
+        "description": "Set the turn retry times to more than 0 times."
+      },
+      "macAddress": {
+        "title": "MAC Address",
+        "type": "string",
+        "pattern": "^([A-Fa-f0-9]{2}(:|-)){5}[A-Fa-f0-9]{2}$",
+        "placeholder": "eg. 01:23:45:67:89:AB",
+        "description": "Set the MAC address of the SwitchBot."
+      },
+      "on": {
+        "title": "Set the information of the SwitchBot for on.",
+        "type": "object",
+        "properties": {
+          "macAddress": {
+            "title": "MAC Address 1",
+            "type": "string",
+            "pattern": "^([A-Fa-f0-9]{2}(:|-)){5}[A-Fa-f0-9]{2}$",
+            "placeholder": "eg. CD:E0:12:34:56:78",
+            "description": "Set the MAC address of the SwitchBot for on."
+          }
+        }
+      },
+      "off": {
+        "title": "Set the information of the SwitchBot for off.",
+        "type": "object",
+        "properties": {
+          "macAddress": {
+            "title": "MAC Address 2",
+            "type": "string",
+            "pattern": "^([A-Fa-f0-9]{2}(:|-)){5}[A-Fa-f0-9]{2}$",
+            "placeholder": "eg. 9A:BC:DE:01:23:45",
+            "description": "Set the MAC address of the SwitchBot for off."
+          }
+        }
+      },
+      "ping": {
+        "title": "Update the status with ping communication.",
+        "type": "object",
+        "required": [
+          "ipAddress"
+        ],
+        "properties": {
+          "ipAddress": {
+            "title": "IpAddress",
+            "type": "string",
+            "format": "hostname",
+            "placeholder": "eg. 127.0.0.1",
+            "description": "Set the IP address of the target device."
+          },
+          "interval": {
+            "title": "Interval",
+            "type": "integer",
+            "minimum": 2000,
+            "placeholder": 2000,
+            "description": "Set the ping interval to more than 2000 milliseconds."
+          },
+          "retries": {
+            "title": "Retries",
+            "type": "integer",
+            "minimum": 0,
+            "placeholder": 1,
+            "description": "Set the ping retry times to more than 0 times."
+          },
+          "timeout": {
+            "title": "Timeout",
+            "type": "integer",
+            "minimum": 0,
+            "placeholder": 1000,
+            "description": "Set the ping timeout to less than interval / (retries + 1) milliseconds."
+          }
+        }
+      }
+    }
+  },
+  "layout": [
+    {
+      "type": "flex",
+      "items": [
+        "name",
+        "delay",
+        "retries"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Use one SwitchBot Settings",
+      "description": "Settings for switching on/off using one SwitchBot.",
+      "expandable": true,
+      "expanded": true,
+      "items": [
+        "macAddress"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Use two SwitchBots Settings",
+      "description": "Settings for switching on/off using two SwitchBots.",
+      "expandable": true,
+      "expanded": true,
+      "items": [
+        "on.macAddress",
+        "off.macAddress"
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Advanced - Ping Settings",
+      "description": "Settings for update the status with ping communication.",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "ping.ipAddress",
+        "ping.interval",
+        "ping.retries",
+        "ping.timeout"
+      ]
+    }
+  ]
+}
