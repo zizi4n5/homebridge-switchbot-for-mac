@@ -1,5 +1,7 @@
 # homebridge-switchbot-for-mac
 
+[![NPM Downloads](https://img.shields.io/npm/dm/homebridge-switchbot-for-mac.svg?style=flat)](https://npmjs.org/package/homebridge-switchbot-for-mac)
+
 A [Homebridge](https://github.com/nfarina/homebridge) plugin for [SwitchBot](https://www.switch-bot.com).
 Currently only [SwitchBot (the Bot)](https://www.switch-bot.com/bot) is supported.
 
