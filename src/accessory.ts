@@ -84,7 +84,7 @@ class WoHand {
     }
   }
 
-  async wait(macAddress: string) {
+  async waitDiscovered(macAddress: string) {
     if (this.discoverState[macAddress] === DiscoverState.NotFound) {
       this.log.info(`WoHand (${macAddress}) was not found. so retry discover.`);
       this.discover(macAddress);
@@ -107,7 +107,7 @@ class WoHand {
     const macAddress = newState ? this.on.macAddress : this.off.macAddress;
 
     try {
-      await this.wait(macAddress);
+      await this.waitDiscovered(macAddress);
       newState ? await this.device[macAddress].turnOn() : await this.device[macAddress].turnOff();
     } catch (error) {
       const message = `WoHand (${macAddress}) was failed turning ${humanState}`;
