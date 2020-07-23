@@ -67,16 +67,30 @@ class WoHand {
       }
     }
 
-    await switchbot.wait(this.delay);
-    await switchbot.discover({ duration: 60000, model: 'H' });
+    try {
+      await switchbot.wait(this.delay);
+      await switchbot.discover({ duration: 60000, model: 'H' });
 
-    if (this.discoverState[macAddress] !== DiscoverState.Discovered) {
+      if (this.discoverState[macAddress] !== DiscoverState.Discovered) {
+        this.discoverState[macAddress] = DiscoverState.NotFound;
+        this.log.warn(`WoHand (${macAddress}) was not found`);
+      }
+    } catch (error) {
       this.discoverState[macAddress] = DiscoverState.NotFound;
-      this.log.warn(`WoHand (${macAddress}) was not found`);
+      this.log.error(`Failed to discover WoHand (${macAddress}). Is Bluetooth enabled?`);
+      if (error instanceof Error) {
+        this.log.error(`${error.stack ?? error.name + ": " + error.message}`);
+      }
     }
   }
 
   async wait(macAddress: string) {
+    if (this.discoverState[macAddress] === DiscoverState.NotFound) {
+      this.log.info(`WoHand (${macAddress}) was not found. so retry discover.`);
+      this.discover(macAddress);
+      await sleep(1000);
+    }
+
     while(this.discoverState[macAddress] !== DiscoverState.Discovered) {
       switch (this.discoverState[macAddress]) {
         case DiscoverState.Discovering:
