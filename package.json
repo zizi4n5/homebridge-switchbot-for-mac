@@ -32,7 +32,7 @@
   ],
   "dependencies": {
     "net-ping": "^1.2.3",
-    "node-switchbot": "zizi4n5/node-switchbot#support/raspi_zero_w"
+    "node-switchbot": "zizi4n5/node-switchbot#develop"
   },
   "devDependencies": {
     "@types/node": "^14.0.23",
