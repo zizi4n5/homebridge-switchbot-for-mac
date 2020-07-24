@@ -1,5 +1,7 @@
 # homebridge-switchbot-for-mac
 
+[![NPM Downloads](https://img.shields.io/npm/dm/homebridge-switchbot-for-mac.svg?style=flat)](https://npmjs.org/package/homebridge-switchbot-for-mac)
+
 A [Homebridge](https://github.com/nfarina/homebridge) plugin for [SwitchBot](https://www.switch-bot.com).
 Currently only [SwitchBot (the Bot)](https://www.switch-bot.com/bot) is supported.
 
@@ -38,7 +40,7 @@ sudo npm install -g homebridge-switchbot-for-mac
 
 Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, and add an accessory definition to `~/.homebridge/config.json`:
 
-### Control one SwitchBot
+### eg. Use one SwitchBot
 
 ```config.json
 {
@@ -60,7 +62,7 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
 }
 ```
 
-### Control two SwitchBots
+### eg. Use two SwitchBots
 
 ```config.json
 {
@@ -87,7 +89,8 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
 }
 ```
 
-## Properties
+---
+## Settings
 
 |Property|Type|Required|Default Value|Description|
 |:-|:-:|:-:|:-:|:-|
@@ -95,20 +98,31 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
 |name|String|Required|-|Set the name of the switch.|
 |delay|Integer|Optional|0|Set a delay between 0 and 30000 milliseconds for waiting for Bluetooth initialization.|
 |retries|Integer|Optional|3|Set the turn retry times to more than 0 times.|
-|macAddress|String|Required<br/>(one SwitchBot)|-|Set the MAC address of the switch.|
-|on|JSON|Required<br/>(two SwitchBots)|-|Set the information of the switch for on.|
-|off|JSON|Required<br/>(two SwitchBots)|-|Set the information of the switch for off.|
-|ping|JSON|Optional|None|Update the status with ping communication.|
 
-#### on/off
+### Use one SwitchBot Settings
+
+Settings for switching on/off using one SwitchBot.
+
 |Property|Type|Required|Default Value|Description|
 |:-|:-:|:-:|:-:|:-|
-|macAddress|String|Required|-|Set the mac address of the switch for on/off.|
+|macAddress|String|Required|-|Set the MAC address of the SwitchBot.|
 
-#### ping
+### Use two SwitchBots Settings
+
+Settings for switching on/off using two SwitchBots.
+
 |Property|Type|Required|Default Value|Description|
 |:-|:-:|:-:|:-:|:-|
-|ipAddress|String|Required|-|Set the IP address of the target device.|
-|interval|Integer|Optional|2000|Set the ping interval to more than 2000 milliseconds.|
-|retries|Integer|Optional|1|Set the ping retry times to more than 0 times.|
-|timeout|Integer|Optional|1000|Set the ping timeout to less than `interval / (retries + 1)` milliseconds.|
+|on.macAddress|String|Required|-|Set the MAC address of the SwitchBot for on.|
+|off.macAddress|String|Required|-|Set the MAC address of the SwitchBot for off.|
+
+### Advanced - Ping Settings
+
+Settings for update the status with ping communication.
+
+|Property|Type|Required|Default Value|Description|
+|:-|:-:|:-:|:-:|:-|
+|ping.ipAddress|String|Required|-|Set the IP address of the target device.|
+|ping.interval|Integer|Optional|2000|Set the ping interval to more than 2000 milliseconds.|
+|ping.retries|Integer|Optional|1|Set the ping retry times to more than 0 times.|
+|ping.timeout|Integer|Optional|1000|Set the ping timeout to less than `interval / (retries + 1)` milliseconds.|
