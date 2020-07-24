@@ -1,6 +1,6 @@
 # homebridge-switchbot-for-mac
 
-[![NPM Downloads](https://img.shields.io/npm/dm/homebridge-switchbot-for-mac.svg?style=flat)](https://npmjs.org/package/homebridge-switchbot-for-mac)
+[![NPM Downloads](https://img.shields.io/npm/dm/homebridge-switchbot-for-mac.svg?label=npm%20downloads&style=flat)](https://npmjs.org/package/homebridge-switchbot-for-mac)
 
 A [Homebridge](https://github.com/nfarina/homebridge) plugin for [SwitchBot](https://www.switch-bot.com).
 Currently only [SwitchBot (the Bot)](https://www.switch-bot.com/bot) is supported.
@@ -25,7 +25,7 @@ If [@abandonware/noble](https://github.com/abandonware/noble) is installed prope
 
 * Node.js 10 +
 * [@abandonware/noble](https://github.com/abandonware/noble)
-* [@futomi/node-switchbot](https://github.com/futomi/node-switchbot)
+* [@zizi4n5/node-switchbot](https://github.com/zizi4n5/node-switchbot)
 
 ## Installation
 
