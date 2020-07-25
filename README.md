@@ -40,7 +40,7 @@ sudo npm install -g homebridge-switchbot-for-mac
 
 Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, and add an accessory definition to `~/.homebridge/config.json`:
 
-### eg. Use one SwitchBot
+### e.g. Use one SwitchBot
 
 ```config.json
 {
@@ -62,7 +62,7 @@ Find your SwitchBot's MAC address (BLE MAC) with the official iOS/Android app, a
 }
 ```
 
-### eg. Use two SwitchBots
+### e.g. Use two SwitchBots
 
 ```config.json
 {
