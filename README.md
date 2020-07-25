@@ -1,17 +1,24 @@
-# homebridge-switchbot-for-mac
+<span align="center">
 
-[![NPM Downloads](https://img.shields.io/npm/dm/homebridge-switchbot-for-mac.svg?label=npm%20downloads&style=flat)](https://npmjs.org/package/homebridge-switchbot-for-mac)
+# Homebridge SwitchBot
 
-A [Homebridge](https://github.com/nfarina/homebridge) plugin for [SwitchBot](https://www.switch-bot.com).
-Currently only [SwitchBot (the Bot)](https://www.switch-bot.com/bot) is supported.
+<a href="https://www.npmjs.com/package/homebridge-switchbot-for-mac"><img title="npm version" src="https://badgen.net/npm/v/homebridge-switchbot-for-mac" ></a>
+<a href="https://www.npmjs.com/package/homebridge-switchbot-for-mac"><img title="npm downloads" src="https://badgen.net/npm/dt/homebridge-switchbot-for-mac" ></a>
 
-## Requirements
+</span>
+
+Homebridge SwitchBot is plugin for [Homebridge](https://github.com/nfarina/homebridge) that allows you to manage [SwitchBot (the Bot)](https://www.switch-bot.com/bot) like a switch accessory on the Home app.
+
+## Supported SwitchBot devices
+* [SwitchBot (the Bot)](https://www.switch-bot.com/bot)
+
+## Supported OS versions
 
 ### macOS
 * macOS version 10.15 or later
 * Install [Xcode](https://itunes.apple.com/ca/app/xcode/id497799835?mt=12)
 
-### Linux(Raspbian)
+### Raspbian(Linux-based OS)
 * Kernel version 3.6 or later
 * libbluetooth-dev
 
