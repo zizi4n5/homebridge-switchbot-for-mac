@@ -36,12 +36,14 @@ class WoHand {
   constructor(private readonly log: Logging, config: Config) {
     this.delay = (typeof config.delay === 'number') ? config.delay : 0;
     this.retries = (typeof config.retries === 'number') ? config.retries : 3;
-    if (config.macAddress) {
+    if (typeof config.macAddress === 'string') {
       this.on = { macAddress: config.macAddress };
       this.off = { macAddress: config.macAddress };
-    } else {
+    } else if (typeof config.on.macAddress === 'string' && typeof config.off.macAddress === 'string') {
       this.on = { macAddress: config.on.macAddress };
       this.off = { macAddress: config.off.macAddress };
+    } else {
+      throw new Error(`Failed to initialize WoHand as it is missing the required 'macAddress' (or 'on.macAddress' and 'off.macAddress') property!`);
     }
     this.discover(this.on.macAddress);
     this.discover(this.off.macAddress);
