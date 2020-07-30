@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge SwitchBot",
   "name": "homebridge-switchbot-for-mac",
-  "version": "0.2.1-beta.0",
+  "version": "0.2.1",
   "description": "Homebridge SwitchBot supports macOS and Raspbian.",
   "author": "zizi4n5 <zizi4n5@gmail.com> (https://github.com/zizi4n5)",
   "license": "MIT",
