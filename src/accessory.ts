@@ -34,8 +34,8 @@ class WoHand {
   private discoverState: { [key: string]: DiscoverState } = {};
 
   constructor(private readonly log: Logging, config: Config) {
-    this.delay = config.delay || 0;
-    this.retries = config.retries || 3;
+    this.delay = (typeof config.delay === 'number') ? config.delay : 0;
+    this.retries = (typeof config.retries === 'number') ? config.retries : 3;
     if (config.macAddress) {
       this.on = { macAddress: config.macAddress };
       this.off = { macAddress: config.macAddress };
@@ -159,9 +159,9 @@ export class SwitchBotAccessory implements AccessoryPlugin {
 
     if (config.ping) {
       const ipAddress = config.ping.ipAddress;
-      const interval = Math.max(config.ping.interval || 2000, 2000);
-      const retries = Math.max(config.ping.retries || 1, 1);
-      const timeout = Math.min(config.ping.timeout || interval / (retries + 1), interval / (retries + 1));
+      const interval = Math.max((typeof config.ping.interval === 'number') ? config.ping.interval : 2000, 2000);
+      const retries = Math.max((typeof config.ping.retries === 'number') ? config.ping.retries : 1, 1);
+      const timeout = Math.min((typeof config.ping.timeout === 'number') ? config.ping.timeout : interval / (retries + 1), interval / (retries + 1));
       const session = ping.createSession({ retries: retries, timeout: timeout });
       log.info(`ping - ipAddress:${ipAddress} interval:${interval} retries:${retries} timeout:${timeout}`);
       setInterval(() => {
