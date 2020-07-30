@@ -131,7 +131,7 @@ export class SwitchBotAccessory implements AccessoryPlugin {
   private readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
   private readonly name: string;
-  private readonly device: WoHand;
+  private readonly device: WoHand | null = null;
 
   private readonly switchService: Service;
   private readonly informationService: Service;
@@ -139,7 +139,15 @@ export class SwitchBotAccessory implements AccessoryPlugin {
 
   constructor(private readonly log: Logging, config: AccessoryConfig, private readonly api: API) {
     this.name = config.name;
-    this.device = new WoHand(log, config as Config);
+
+    try {
+      this.device = new WoHand(log, config as Config);
+    } catch (error) {
+      this.log.error(`Failed to initialize accessory as it is missing the required 'macAddress' (or 'on.macAddress' and 'off.macAddress') property!`);
+      if (error instanceof Error) {
+        this.log.debug(`${error.stack ?? error.name + ": " + error.message}`);
+      }
+    }
 
     this.switchService = new this.Service.Switch(this.name);
     this.switchService.getCharacteristic(this.Characteristic.On)
@@ -208,6 +216,11 @@ export class SwitchBotAccessory implements AccessoryPlugin {
     const newState = value as boolean;
     const humanState = newState ? 'on' : 'off';
     this.log.info(`Turning ${humanState}...`);
+
+    if (!this.device) {
+      this.log.error(`Failed to turning ${humanState} as it is missing the required 'macAddress' (or 'on.macAddress' and 'off.macAddress') property!`);
+      return;
+    }
 
     if (newState === this.state) {
       this.log.info(`WoHand (${this.device[humanState].macAddress}) was already ${humanState}`);
