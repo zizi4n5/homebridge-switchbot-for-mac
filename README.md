@@ -39,7 +39,7 @@ If [@abandonware/noble](https://github.com/abandonware/noble) is installed prope
 Install the npm package:
 
 ```bash
-sudo npm install -g homebridge-switchbot-for-mac
+sudo npm install -g --unsafe-perm homebridge-switchbot-for-mac
 ```
 
 ---
