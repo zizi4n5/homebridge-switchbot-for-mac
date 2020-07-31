@@ -2,8 +2,9 @@
 
 # Homebridge SwitchBot
 
-<a href="https://www.npmjs.com/package/homebridge-switchbot-for-mac"><img title="npm version" src="https://badgen.net/npm/v/homebridge-switchbot-for-mac" ></a>
-<a href="https://www.npmjs.com/package/homebridge-switchbot-for-mac"><img title="npm downloads" src="https://badgen.net/npm/dt/homebridge-switchbot-for-mac" ></a>
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+[![npm version](https://badgen.net/npm/v/homebridge-switchbot-for-mac)](https://www.npmjs.com/package/homebridge-switchbot-for-mac)
+[![npm downloads](https://badgen.net/npm/dt/homebridge-switchbot-for-mac)](https://www.npmjs.com/package/homebridge-switchbot-for-mac)
 
 </span>
 
