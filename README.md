@@ -20,9 +20,9 @@ Homebridge SwitchBot is plugin for [Homebridge](https://github.com/nfarina/homeb
 * Install [Xcode](https://itunes.apple.com/ca/app/xcode/id497799835?mt=12)
 
 #### Big Sur
-Set to manually grant Bluetooth access in System Preferences UI for Security & Privacy -> Privacy to the node executable. 
+Set to manually grant Bluetooth access in System Preferences UI for `Security & Privacy -> Privacy` to the `node` executable. 
 ![Security & Privacy -> Privacy](assets/bigsur-security-privacy-bluetooth.png)
-The symlink part is important. If you installed node via homebrew, you cannot grant Bluetooth privileges to /usr/local/bin/node, but have to target /usr/local/Cellar/node/x.x.x/bin/node explicitly.
+The symlink part is important. If you installed node via homebrew, you cannot grant Bluetooth privileges to `/usr/local/bin/node`, but have to target `/usr/local/Cellar/node/x.x.x/bin/node` explicitly.
 
 ### Raspbian(Linux-based OS)
 * Kernel version 3.6 or later
