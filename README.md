@@ -131,7 +131,9 @@ Settings for switching on/off using two SwitchBots.
 
 ### Advanced - Ping Settings
 
-Settings for update the status with ping communication.
+Settings for update the status with ping communication.  
+You can only set it if you can using ping to determine if the device is on or off.  
+Otherwise, do not set it.
 
 |Property|Type|Required|Default Value|Description|
 |:-|:-:|:-:|:-:|:-|
