@@ -1,8 +1,8 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.7.0)
-      public_suffix (>= 2.0.2, < 5.0)
+    addressable (2.8.1)
+      public_suffix (>= 2.0.2, < 6.0)
     dotenv (2.7.5)
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
@@ -30,7 +30,7 @@ GEM
       sawyer (~> 0.8.0, >= 0.5.3)
     parallel (1.19.1)
     pathname-common_prefix (0.0.1)
-    public_suffix (4.0.5)
+    public_suffix (5.0.0)
     reverse_markdown (1.4.0)
       nokogiri
     ruby-xxHash (0.4.0.1)
